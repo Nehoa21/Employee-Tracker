@@ -1,0 +1,13 @@
+const sequalize = require('../config/connection.js');
+
+const Department = require('../models/Department.js');
+const departmentSeedsJson = require('./departmentSeedsJson.json');
+
+const departmentDatabase = async () => {
+    await sequalize.sync({ force: true });
+    await Department.bulkCreate(departmentSeedsJson);
+    
+    process.exit(0);
+};
+
+departmentDatabase();
