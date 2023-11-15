@@ -1,5 +1,5 @@
 const inquirer = require("inquirer");
-const { Department, Employee, Role } = require('./models');
+const db = require('./config/connection.js');
 
 function init () {
   inquirer.prompt([
@@ -16,54 +16,69 @@ function init () {
               'Add a role',
               'Add an employee',
               'Update an employee role',
+              'Exit',
           ],
     }.then((answer) => {
-      if (answer.firstOption === 'View all departments') {
+      if (answer.prompt === 'View all departments') {
         departmentData();
-      } else if(answer.firstOption === 'View all roles') {
+      } else if(answer.prompt === 'View all roles') {
         roleData();
-      } else if(answer.firstOption === 'View all employees') {
+      } else if(answer.prompt === 'View all employees') {
         employeeData();
-      } else if(answer.firstOption === 'Add a department') {
+      } else if(answer.prompt === 'Add a department') {
         addDepartment();
-      } else if(answer.firstOption === 'Add a role') {
+      } else if(answer.prompt === 'Add a role') {
         addRole();
-      } else if(answer.firstOption === 'Add an employee') {
+      } else if(answer.prompt === 'Add an employee') {
         addEmployee();
-      } else if(answer.firstOption === 'Update an employee role') {
+      } else if(answer.prompt === 'Update an employee role') {
         updateEmployee();
+      } else if (answer.prompt === 'Exit') {
+        exit();
       }
       init();
     })
   ]);
 };
 
+// view department data
 const departmentData = () => {
-
+  
+  init();
 };
 
+// view all role data
 const roleData = () => {
 
 };
 
+// view all employee data
 const employeeData = () => {
 
 };
 
+// add department to the company_db
 const addDepartment = () => {
 
 };
 
+// add role to the company_db
 const addRole = () => {
 
 };
 
+// add employee to the company_db
 const addEmployee = () => {
 
 };
 
+// update an employee's role in the compnay_db
 const updateEmployee = () => {
-  
+
 };
+
+const exit = () => {
+
+}
 
 init();
