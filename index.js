@@ -1,7 +1,7 @@
 const inquirer = require("inquirer");
 const db = require('./config/connection.js');
 
-function init () {
+function runDatabase () {
   inquirer.prompt([
     {
       type: "list",
@@ -18,6 +18,8 @@ function init () {
               'Update an employee role',
               'Exit',
           ],
+    
+    // run function based on choice
     }.then((answer) => {
       if (answer.prompt === 'View all departments') {
         departmentData();
@@ -36,7 +38,7 @@ function init () {
       } else if (answer.prompt === 'Exit') {
         exit();
       }
-      init();
+      runDatabase();
     })
   ]);
 };
@@ -52,128 +54,175 @@ const departmentData = () => {
       console.log(err);
       return;
     }
-    console.log('Viewing Department Table');
+    console.log('Viewing Department data:');
     console.table(choice);
   });
-  init();
+  runDatabase();
 };
 
 // view all role data
 const roleData = () => {
-  const sql = `SELECT id, movie_name AS title FROM movies`;
+  const sql = `SELECT * FROM roles JOIN department_id ON roles.department_id = department.names`;
   
-  db.query(sql, (err, rows) => {
+  db.query(sql, (err, choice) => {
     if (err) {
-      res.status(500).json({ error: err.message });
-       return;
+      console.log(err);
+      return;
     }
-    res.json({
-      message: 'success',
-      data: rows
-    });
+    console.log('Viewing Roles data:');
+    console.table(choice);
   });
+  runDatabase();
 };
 
 // view all employee data
 const employeeData = () => {
-  const sql = `SELECT id, movie_name AS title FROM movies`;
+  const sql = `SELECT * FROM employee JOIN role_id ON employee.role_id = title JOIN department_id ON employee.department_id`;
   
-  db.query(sql, (err, rows) => {
+  db.query(sql, (err, choice) => {
     if (err) {
-      res.status(500).json({ error: err.message });
-       return;
+      console.log(err);
+      return;
     }
-    res.json({
-      message: 'success',
-      data: rows
-    });
+    console.log('Viewing Employee data:');
+    console.table(choice);
   });
+  runDatabase();
 };
 
 // --- Add to Databases ---
 
 // add department to the company_db
 const addDepartment = () => {
-  app.post('/api/new-movie', ({ body }, res) => {
-    const sql = `INSERT INTO movies (movie_name)
-      VALUES (?)`;
-    const params = [body.movie_name];
+  inquirer.prompt([
+    {
+      type: 'input',
+      message: 'What is the name of the new department?',
+      name: 'newDepartment',
+      validate: input => {
+        if (input) {
+          return true;
+        } else {
+          console.log('Add a department name');
+          return false;
+        };
+      }
+    }
+  ]).then((answer) => {
+    const sql = `INSERT INTO department (name) VALUES (?)`;
+    const params = [answer.newDepartment];
     
-    db.query(sql, params, (err, result) => {
+    db.query(sql, params, (err, choice) => {
       if (err) {
-        res.status(400).json({ error: err.message });
+        console.log(err);
         return;
       }
-      res.json({
-        message: 'success',
-        data: body
-      });
+      console.log(`Added ${params} to the Department table`);
+      console.table(choice);
     });
   });
+  runDatabase();
 };
 
 // add role to the company_db
 const addRole = () => {
-  app.post('/api/new-movie', ({ body }, res) => {
-    const sql = `INSERT INTO movies (movie_name)
-      VALUES (?)`;
-    const params = [body.movie_name];
+  inquirer.prompt([
+    {
+      type: 'input',
+      message: 'What role would you like to add?',
+      name: 'newDepartment',
+      validate: input => {
+        if (input) {
+          return true;
+        } else {
+          console.log('Add a department name');
+          return false;
+        };
+      },
+    },
+    {
+      type: '',
+      message: 'How much is the salary?',
+      name: 'salary',
+      validate: input => {
+        if (input) {
+          return true;
+        } else {
+          console.log('Add a salary');
+          return false;
+        }
+      }
+    },
+    {
+      type: 'input',
+      message: 'What department does the role belong to?',
+      name: 'department',
+      validate: input => {
+        if (input) {
+          return true;
+        } else {
+          console.log('Add the department it belongs to.');
+          return false;
+        }
+      }
+    }
+  ]).then((answer) => {
+    const sql = `INSERT INTO department (name) VALUES (?)`;
+    const params = [answer.newDepartment];
     
-    db.query(sql, params, (err, result) => {
+    db.query(sql, params, (err, choice) => {
       if (err) {
-        res.status(400).json({ error: err.message });
+        console.log(err);
         return;
       }
-      res.json({
-        message: 'success',
-        data: body
-      });
+      console.log(`Added ${params} to the Department table`);
+      console.table(choice);
     });
   });
+  runDatabase();
 };
 
 // add employee to the company_db
 const addEmployee = () => {
-  app.post('/api/new-movie', ({ body }, res) => {
-    const sql = `INSERT INTO movies (movie_name)
-      VALUES (?)`;
-    const params = [body.movie_name];
-    
-    db.query(sql, params, (err, result) => {
-      if (err) {
-        res.status(400).json({ error: err.message });
-        return;
-      }
-      res.json({
-        message: 'success',
-        data: body
-      });
+  const sql = `INSERT INTO movies (movie_name) VALUES (?)`;
+  const params = [body.movie_name];
+  
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'success',
+      data: body
     });
   });
+  runDatabase();
 };
 
 // --- Update Employee Database ---
 
 // update an employee's role in the compnay_db
 const updateEmployee = () => {
-    const sql = `UPDATE reviews SET review = ? WHERE id = ?`;
-    const params = [req.body.review, req.params.id];
-  
-    db.query(sql, params, (err, result) => {
-      if (err) {
-        res.status(400).json({ error: err.message });
-      } else if (!result.affectedRows) {
-        res.json({
-          message: 'Movie not found'
-        });
-      } else {
-        res.json({
-          message: 'success',
-          data: req.body,
-          changes: result.affectedRows
-        });
-      }
-    });
+  const sql = `UPDATE reviews SET review = ? WHERE id = ?`;
+  const params = [req.body.review, req.params.id];
+
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+    } else if (!result.affectedRows) {
+      res.json({
+        message: 'Movie not found'
+      });
+    } else {
+      res.json({
+        message: 'success',
+        data: req.body,
+        changes: result.affectedRows
+      });
+    }
+  });
+  runDatabase();
 };
 
 // --- Exit ---
@@ -182,5 +231,3 @@ const updateEmployee = () => {
 const exit = () => {
 
 }
-
-init();
