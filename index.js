@@ -43,7 +43,7 @@ function runDatabase () {
   ]);
 };
 
-// --- View Databases ---
+// --- View Database ---
 
 // view department data
 const departmentData = () => {
@@ -90,9 +90,9 @@ const employeeData = () => {
   runDatabase();
 };
 
-// --- Add to Databases ---
+// --- Add to Database ---
 
-// add department to the company_db
+// add department to the company_db database
 const addDepartment = () => {
   inquirer.prompt([
     {
@@ -124,24 +124,25 @@ const addDepartment = () => {
   runDatabase();
 };
 
-// add role to the company_db
+// add role to the company_db database
 const addRole = () => {
   inquirer.prompt([
     {
+      // 
       type: 'input',
       message: 'What role would you like to add?',
-      name: 'newDepartment',
+      name: 'newRole',
       validate: input => {
         if (input) {
           return true;
         } else {
-          console.log('Add a department name');
+          console.log('Add a role name');
           return false;
         };
       },
     },
     {
-      type: '',
+      type: 'input',
       message: 'How much is the salary?',
       name: 'salary',
       validate: input => {
@@ -167,15 +168,15 @@ const addRole = () => {
       }
     }
   ]).then((answer) => {
-    const sql = `INSERT INTO department (name) VALUES (?)`;
-    const params = [answer.newDepartment];
+    const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`;
+    const params = [answer.newRole, answer.salary, answer.department];
     
     db.query(sql, params, (err, choice) => {
       if (err) {
         console.log(err);
         return;
       }
-      console.log(`Added ${params} to the Department table`);
+      console.log(`Added ${answer.newRole} to the database`);
       console.table(choice);
     });
   });
@@ -184,20 +185,78 @@ const addRole = () => {
 
 // add employee to the company_db
 const addEmployee = () => {
-  const sql = `INSERT INTO movies (movie_name) VALUES (?)`;
-  const params = [body.movie_name];
-  
-  db.query(sql, params, (err, result) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
+  inquirer.prompt([
+    {
+      // 
+      type: 'input',
+      message: 'What is the firat name of the employee?',
+      name: 'firstName',
+      validate: input => {
+        if (input) {
+          return true;
+        } else {
+          console.log('Add the first name');
+          return false;
+        };
+      },
+    },
+    {
+      type: 'input',
+      message: 'What is the last name of the employee?',
+      name: 'lastName',
+      validate: input => {
+        if (input) {
+          return true;
+        } else {
+          console.log('Add the last name');
+          return false;
+        }
+      }
+    },
+    {
+      type: 'input',
+      message: 'What role does the employee have?',
+      name: 'role',
+      validate: input => {
+        if (input) {
+          return true;
+        } else {
+          console.log('Add the role for the employee');
+          return false;
+        }
+      }
+    },
+    {
+      type: 'input',
+      message: 'Who is the manager for the employee?',
+      name: 'manager',
+      validate: input => {
+        if (input) {
+          return true;
+        } else {
+          console.log('Enter the name of the manager');
+          return false;
+        }
+      }
     }
-    res.json({
-      message: 'success',
-      data: body
+  ]).then((answer) => {
+    db.query('SELECT * FROM employees, roles', (err, result) => {
+      if(err) {
+        console.log(err);
+      }
     });
-  });
-  runDatabase();
+    const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
+    const params = [answer.firstName, answer.lastName, answer.role, answer.manager];
+    
+    db.query(sql, params, (err, choice) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      console.log(`Added ${answer.firstName} ${answer.lastName} to the database.`);
+      });
+    });
+    runDatabase();
 };
 
 // --- Update Employee Database ---
