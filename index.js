@@ -1,11 +1,9 @@
 const inquirer = require("inquirer");
 const db = require('./config/connection.js');
+// const consoleTable = require('console.table');
 
 db.connect(err => {
-  if(err) {
-    console.log(err);
-  }
-  console.log('Database connected.');
+  if(err) throw err;
   runDatabase();
 });
 
@@ -29,7 +27,7 @@ function runDatabase () {
     
     // run function based on choice
     }]).then((answer) => {
-      if (answer.prompt === 'View all departments') {
+      if (answer === 'View all departments') {
         departmentData();
       } else if(answer.prompt === 'View all roles') {
         roleData();
@@ -47,7 +45,6 @@ function runDatabase () {
         exit();
       }
     });
-    runDatabase();
 };
 
 // --- View Database ---
@@ -56,13 +53,9 @@ function runDatabase () {
 const departmentData = () => {
   const sql = `SELECT * FROM department`;
   
-  db.query(sql, (err, choice) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log('Viewing Department data:');
-    console.table(choice);
+  db.promise().query(sql, (err, res) => {
+    if (err) throw err;
+    console.table(res);
     runDatabase();
   });
 };
@@ -71,13 +64,9 @@ const departmentData = () => {
 const roleData = () => {
   const sql = `SELECT * FROM roles JOIN department_id ON roles.department_id = department.names`;
   
-  db.query(sql, (err, choice) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log('Viewing Roles data:');
-    console.table(choice);
+  db.query(sql, (err, res) => {
+    if (err) throw err;
+    console.table(res);
     runDatabase();
   });
 };
@@ -86,13 +75,10 @@ const roleData = () => {
 const employeeData = () => {
   const sql = `SELECT * FROM employee JOIN role_id ON employee.role_id = title JOIN department_id ON employee.department_id`;
   
-  db.query(sql, (err, choice) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
+  db.query(sql, (err, res) => {
+    if (err) throw err;
     console.log('Viewing Employee data:');
-    console.table(choice);
+    console.table(res);
     runDatabase();
   });
 };
@@ -119,27 +105,20 @@ const addDepartment = () => {
     const sql = `INSERT INTO department (name) VALUES (?)`;
     const params = [answer.newDepartment];
     
-    db.query(sql, params, (err, choice) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
+    db.query(sql, params, (err) => {
+      if (err) throw err;
       console.log(`Added ${params} to the Department table`);
-      console.table(choice);
+      runDatabase();
     });
   });
-  runDatabase();
 };
 
 // add role to the company_db database
 const addRole = () => {
-  db.query('SELECT * FROM department', (err, result) => {
-    if (err) {
-      console.log(err);
-    }
+  db.query('SELECT * FROM department', (err, res) => {
+    if (err) throw err;
     inquirer.prompt([
       {
-        // 
         type: 'input',
         message: 'What role would you like to add?',
         name: 'newRole',
@@ -171,8 +150,8 @@ const addRole = () => {
         name: 'department',
         validate: () => {
           let departmentArr = [];
-          for (let i = 0; i < array.length; i++) {
-            departmentArr.push(result[i].name);
+          for (let i = 0; i < res.length; i++) {
+            departmentArr.push(res[i].name);
           }
           return departmentArr;
         }
@@ -181,25 +160,19 @@ const addRole = () => {
       const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`;
       const params = [answer.newRole, answer.salary, answer.department];
       
-      db.query(sql, params, (err, choice) => {
-        if (err) {
-          console.log(err);
-          return;
-        }
+      db.query(sql, params, (err) => {
+        if (err) throw err;
         console.log(`Added ${answer.newRole} to the database`);
-        console.table(choice);
+        runDatabase();
       });
     });
-    runDatabase();
   });
 };
 
 // add employee to the company_db
 const addEmployee = () => {
-  db.query('SELECT * FROM employees', (err, result) => {
-    if (err) {
-      console.log(err);
-    }
+  db.query('SELECT * FROM employees', (err) => {
+    if (err) throw err;
     inquirer.prompt([
       {
         // 
@@ -252,7 +225,7 @@ const addEmployee = () => {
         }
       }
     ]).then((answer) => {
-      db.query('SELECT * FROM employees, roles', (err, result) => {
+      db.query('SELECT * FROM employees, roles', (err) => {
         if(err) {
           console.log(err);
         }
@@ -260,15 +233,12 @@ const addEmployee = () => {
       const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
       const params = [answer.firstName, answer.lastName, answer.role, answer.manager];
       
-      db.query(sql, params, (err, choice) => {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        console.log(`Added ${answer.firstName} ${answer.lastName} to the database.`);
+      db.query(sql, params, (err) => {
+        if (err) throw err;
+          console.log(`Added ${answer.firstName} ${answer.lastName} to the database.`);
+          runDatabase();
         });
       });
-      runDatabase();
   });
 };
 
@@ -276,10 +246,8 @@ const addEmployee = () => {
 
 // update an employee's role in the compnay_db
 const updateEmployee = () => {
-  db.query('SELECT * FROM employees, roles', (err, choice) => {
-    if (err) {
-      console.log(err);
-    }
+  db.query('SELECT * FROM employees, roles', (err, res) => {
+    if (err) throw err;
     inquirer.prompt([
       {
         // 
@@ -288,8 +256,8 @@ const updateEmployee = () => {
         name: 'employee',
         validate: () => {
           let arr = [];
-          for(let i = 0; i < choice.length; i++) {
-            arr.push(result[i].last_name);
+          for(let i = 0; i < res.length; i++) {
+            arr.push(res[i].last_name);
           };
           let employeeArr = [...new Set(arr)];
           return employeeArr;
@@ -301,8 +269,8 @@ const updateEmployee = () => {
         name: 'role',
         validate: () => {
           let arr = [];
-          for(let i = 0; i < choice.length; i++) {
-            arr.push(result[i].title);
+          for(let i = 0; i < res.length; i++) {
+            arr.push(res[i].title);
           };
           let roleArr = [...new Set(arr)];
           return roleArr;
@@ -310,25 +278,23 @@ const updateEmployee = () => {
       },
     ]).then((answer) => {
 
-      for (let i = 0; i < choice.length; i++) {
-        if (choice[i].last_name === answer.employee) {
-          var employeeName = choice[i];
+      for (let i = 0; i < res.length; i++) {
+        if (res[i].last_name === answer.employee) {
+          var employeeName = res[i];
         };       
       };
 
-      for (let i = 0; i < choice.length; i++) {
-        if (choice[i].title === answer.role) {
-          var newRole = choice[i];
+      for (let i = 0; i < res.length; i++) {
+        if (res[i].title === answer.role) {
+          var newRole = res[i];
         };        
       };
   
       const sql = `UPDATE employees SET ? WHERE ?`;
       const params = [{role_id: newRole}, {last_name: employeeName}];
     
-      db.query(sql, params, (err, result) => {
-        if (err) {
-          console.log(err);
-        }
+      db.query(sql, params, (err) => {
+        if (err) throw err;
         console.log(`Updated ${answer.employee}'s role in the database.`);
       });
     });
