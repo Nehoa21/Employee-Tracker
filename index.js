@@ -171,7 +171,7 @@ const addRole = () => {
 
 // add employee to the company_db
 const addEmployee = () => {
-  db.query('SELECT * FROM employees', (err) => {
+  db.query('SELECT * FROM employees, roles', (err, res) => {
     if (err) throw err;
     inquirer.prompt([
       {
@@ -225,20 +225,20 @@ const addEmployee = () => {
         }
       }
     ]).then((answer) => {
-      db.query('SELECT * FROM employees, roles', (err) => {
-        if(err) {
-          console.log(err);
-        }
-      });
+      for (let i = 0; i < res.length; i++) {
+        if (res[i].title === answer.role) {
+          var role = res[i];
+        };
+      };
       const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
-      const params = [answer.firstName, answer.lastName, answer.role, answer.manager];
+      const params = [answer.firstName, answer.lastName, role.id, answer.manager.id];
       
       db.query(sql, params, (err) => {
         if (err) throw err;
           console.log(`Added ${answer.firstName} ${answer.lastName} to the database.`);
           runDatabase();
-        });
       });
+    });
   });
 };
 
@@ -296,10 +296,10 @@ const updateEmployee = () => {
       db.query(sql, params, (err) => {
         if (err) throw err;
         console.log(`Updated ${answer.employee}'s role in the database.`);
+        runDatabase();
       });
     });
   });   
-  runDatabase();
 };
 
 // --- Exit ---
@@ -308,4 +308,4 @@ const updateEmployee = () => {
 const exit = () => {
   db.end();
   console.log('Database ended.');
-}
+};
