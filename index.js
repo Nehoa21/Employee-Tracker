@@ -126,7 +126,7 @@ const addDepartment = () => {
 
 // add role to the company_db database
 const addRole = () => {
-  db.query('SELECT * FROM roles', (err, result) => {
+  db.query('SELECT * FROM department', (err, result) => {
     if (err) {
       console.log(err);
     }
@@ -162,13 +162,12 @@ const addRole = () => {
         type: 'input',
         message: 'What department does the role belong to?',
         name: 'department',
-        validate: input => {
-          if (input) {
-            return true;
-          } else {
-            console.log('Add the department it belongs to.');
-            return false;
+        validate: () => {
+          let departmentArr = [];
+          for (let i = 0; i < array.length; i++) {
+            departmentArr.push(result[i].name);
           }
+          return departmentArr;
         }
       }
     ]).then((answer) => {
@@ -337,5 +336,6 @@ const updateEmployee = () => {
 
 // Exit function
 const exit = () => {
-
+  db.end();
+  console.log('Database ended.');
 }
