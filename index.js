@@ -126,161 +126,210 @@ const addDepartment = () => {
 
 // add role to the company_db database
 const addRole = () => {
-  inquirer.prompt([
-    {
-      // 
-      type: 'input',
-      message: 'What role would you like to add?',
-      name: 'newRole',
-      validate: input => {
-        if (input) {
-          return true;
-        } else {
-          console.log('Add a role name');
-          return false;
-        };
-      },
-    },
-    {
-      type: 'input',
-      message: 'How much is the salary?',
-      name: 'salary',
-      validate: input => {
-        if (input) {
-          return true;
-        } else {
-          console.log('Add a salary');
-          return false;
-        }
-      }
-    },
-    {
-      type: 'input',
-      message: 'What department does the role belong to?',
-      name: 'department',
-      validate: input => {
-        if (input) {
-          return true;
-        } else {
-          console.log('Add the department it belongs to.');
-          return false;
-        }
-      }
+  db.query('SELECT * FROM roles', (err, result) => {
+    if (err) {
+      console.log(err);
     }
-  ]).then((answer) => {
-    const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`;
-    const params = [answer.newRole, answer.salary, answer.department];
-    
-    db.query(sql, params, (err, choice) => {
-      if (err) {
-        console.log(err);
-        return;
+    inquirer.prompt([
+      {
+        // 
+        type: 'input',
+        message: 'What role would you like to add?',
+        name: 'newRole',
+        validate: input => {
+          if (input) {
+            return true;
+          } else {
+            console.log('Add a role name');
+            return false;
+          };
+        },
+      },
+      {
+        type: 'input',
+        message: 'How much is the salary?',
+        name: 'salary',
+        validate: input => {
+          if (input) {
+            return true;
+          } else {
+            console.log('Add a salary');
+            return false;
+          }
+        }
+      },
+      {
+        type: 'input',
+        message: 'What department does the role belong to?',
+        name: 'department',
+        validate: input => {
+          if (input) {
+            return true;
+          } else {
+            console.log('Add the department it belongs to.');
+            return false;
+          }
+        }
       }
-      console.log(`Added ${answer.newRole} to the database`);
-      console.table(choice);
+    ]).then((answer) => {
+      const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`;
+      const params = [answer.newRole, answer.salary, answer.department];
+      
+      db.query(sql, params, (err, choice) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        console.log(`Added ${answer.newRole} to the database`);
+        console.table(choice);
+      });
     });
+    runDatabase();
   });
-  runDatabase();
 };
 
 // add employee to the company_db
 const addEmployee = () => {
-  inquirer.prompt([
-    {
-      // 
-      type: 'input',
-      message: 'What is the firat name of the employee?',
-      name: 'firstName',
-      validate: input => {
-        if (input) {
-          return true;
-        } else {
-          console.log('Add the first name');
-          return false;
-        };
-      },
-    },
-    {
-      type: 'input',
-      message: 'What is the last name of the employee?',
-      name: 'lastName',
-      validate: input => {
-        if (input) {
-          return true;
-        } else {
-          console.log('Add the last name');
-          return false;
-        }
-      }
-    },
-    {
-      type: 'input',
-      message: 'What role does the employee have?',
-      name: 'role',
-      validate: input => {
-        if (input) {
-          return true;
-        } else {
-          console.log('Add the role for the employee');
-          return false;
-        }
-      }
-    },
-    {
-      type: 'input',
-      message: 'Who is the manager for the employee?',
-      name: 'manager',
-      validate: input => {
-        if (input) {
-          return true;
-        } else {
-          console.log('Enter the name of the manager');
-          return false;
-        }
-      }
+  db.query('SELECT * FROM employees', (err, result) => {
+    if (err) {
+      console.log(err);
     }
-  ]).then((answer) => {
-    db.query('SELECT * FROM employees, roles', (err, result) => {
-      if(err) {
-        console.log(err);
+    inquirer.prompt([
+      {
+        // 
+        type: 'input',
+        message: 'What is the firat name of the employee?',
+        name: 'firstName',
+        validate: input => {
+          if (input) {
+            return true;
+          } else {
+            console.log('Add the first name');
+            return false;
+          };
+        },
+      },
+      {
+        type: 'input',
+        message: 'What is the last name of the employee?',
+        name: 'lastName',
+        validate: input => {
+          if (input) {
+            return true;
+          } else {
+            console.log('Add the last name');
+            return false;
+          }
+        }
+      },
+      {
+        type: 'input',
+        message: 'What role does the employee have?',
+        name: 'role',
+        validate: input => {
+          if (input) {
+            return true;
+          } else {
+            console.log('Add the role for the employee');
+            return false;
+          }
+        }
+      },
+      {
+        type: 'input',
+        message: 'Who is the manager for the employee?',
+        name: 'manager',
+        validate: input => {
+          if (input) {
+            return true;
+          } else {
+            console.log('Enter the name of the manager');
+            return false;
+          }
+        }
       }
-    });
-    const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
-    const params = [answer.firstName, answer.lastName, answer.role, answer.manager];
-    
-    db.query(sql, params, (err, choice) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      console.log(`Added ${answer.firstName} ${answer.lastName} to the database.`);
+    ]).then((answer) => {
+      db.query('SELECT * FROM employees, roles', (err, result) => {
+        if(err) {
+          console.log(err);
+        }
       });
-    });
-    runDatabase();
+      const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
+      const params = [answer.firstName, answer.lastName, answer.role, answer.manager];
+      
+      db.query(sql, params, (err, choice) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        console.log(`Added ${answer.firstName} ${answer.lastName} to the database.`);
+        });
+      });
+      runDatabase();
+  });
 };
 
 // --- Update Employee Database ---
 
 // update an employee's role in the compnay_db
 const updateEmployee = () => {
-  const sql = `UPDATE reviews SET review = ? WHERE id = ?`;
-  const params = [req.body.review, req.params.id];
-
-  db.query(sql, params, (err, result) => {
+  db.query('SELECT * FROM employees, roles', (err, choice) => {
     if (err) {
-      res.status(400).json({ error: err.message });
-    } else if (!result.affectedRows) {
-      res.json({
-        message: 'Movie not found'
-      });
-    } else {
-      res.json({
-        message: 'success',
-        data: req.body,
-        changes: result.affectedRows
-      });
+      console.log(err);
     }
-  });
+    inquirer.prompt([
+      {
+        // 
+        type: 'input',
+        message: 'What employee do you want to update?',
+        name: 'employee',
+        validate: () => {
+          let arr = [];
+          for(let i = 0; i < choice.length; i++) {
+            arr.push(result[i].last_name);
+          };
+          let employeeArr = [...new Set(arr)];
+          return employeeArr;
+        },
+      },
+      {
+        type: 'input',
+        message: 'What is their new role?',
+        name: 'role',
+        validate: () => {
+          let arr = [];
+          for(let i = 0; i < choice.length; i++) {
+            arr.push(result[i].title);
+          };
+          let roleArr = [...new Set(arr)];
+          return roleArr;
+        }
+      },
+    ]).then((answer) => {
+
+      for (let i = 0; i < choice.length; i++) {
+        if (choice[i].last_name === answer.employee) {
+          var employeeName = choice[i];
+        };       
+      };
+
+      for (let i = 0; i < choice.length; i++) {
+        if (choice[i].title === answer.role) {
+          var newRole = choice[i];
+        };        
+      };
+  
+      const sql = `UPDATE employees SET ? WHERE ?`;
+      const params = [{role_id: newRole}, {last_name: employeeName}];
+    
+      db.query(sql, params, (err, result) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log(`Updated ${answer.employee}'s role in the database.`);
+      });
+    });
+  });   
   runDatabase();
 };
 
