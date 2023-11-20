@@ -1,6 +1,14 @@
 const inquirer = require("inquirer");
 const db = require('./config/connection.js');
 
+db.connect(err => {
+  if(err) {
+    console.log(err);
+  }
+  console.log('Database connected.');
+  runDatabase();
+});
+
 function runDatabase () {
   inquirer.prompt([
     {
@@ -20,7 +28,7 @@ function runDatabase () {
           ],
     
     // run function based on choice
-    }.then((answer) => {
+    }]).then((answer) => {
       if (answer.prompt === 'View all departments') {
         departmentData();
       } else if(answer.prompt === 'View all roles') {
@@ -38,9 +46,8 @@ function runDatabase () {
       } else if (answer.prompt === 'Exit') {
         exit();
       }
-      runDatabase();
-    })
-  ]);
+    });
+    runDatabase();
 };
 
 // --- View Database ---
@@ -56,8 +63,8 @@ const departmentData = () => {
     }
     console.log('Viewing Department data:');
     console.table(choice);
+    runDatabase();
   });
-  runDatabase();
 };
 
 // view all role data
@@ -71,8 +78,8 @@ const roleData = () => {
     }
     console.log('Viewing Roles data:');
     console.table(choice);
+    runDatabase();
   });
-  runDatabase();
 };
 
 // view all employee data
@@ -86,8 +93,8 @@ const employeeData = () => {
     }
     console.log('Viewing Employee data:');
     console.table(choice);
+    runDatabase();
   });
-  runDatabase();
 };
 
 // --- Add to Database ---
@@ -239,11 +246,8 @@ const addEmployee = () => {
         message: 'Who is the manager for the employee?',
         name: 'manager',
         validate: input => {
-          if (input) {
-            return true;
-          } else {
-            console.log('Enter the name of the manager');
-            return false;
+          if (!input) {
+            return null;
           }
         }
       }
