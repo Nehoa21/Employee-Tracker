@@ -27,21 +27,22 @@ function runDatabase () {
     
     // run function based on choice
     }]).then((answer) => {
-      if (answer === 'View all departments') {
+      if (answer.firstOption === 'View all departments') {
         departmentData();
-      } else if(answer.prompt === 'View all roles') {
+      } else if(answer.firstOption === 'View all roles') {
+        console.log('viewing')
         roleData();
-      } else if(answer.prompt === 'View all employees') {
+      } else if(answer.firstOption === 'View all employees') {
         employeeData();
-      } else if(answer.prompt === 'Add a department') {
+      } else if(answer.firstOption === 'Add a department') {
         addDepartment();
-      } else if(answer.prompt === 'Add a role') {
+      } else if(answer.firstOption === 'Add a role') {
         addRole();
-      } else if(answer.prompt === 'Add an employee') {
+      } else if(answer.firstOption === 'Add an employee') {
         addEmployee();
-      } else if(answer.prompt === 'Update an employee role') {
+      } else if(answer.firstOption === 'Update an employee role') {
         updateEmployee();
-      } else if (answer.prompt === 'Exit') {
+      } else if (answer.firstOption === 'Exit') {
         exit();
       }
     });
@@ -53,7 +54,7 @@ function runDatabase () {
 const departmentData = () => {
   const sql = `SELECT * FROM department`;
   
-  db.promise().query(sql, (err, res) => {
+  db.query(sql, (err, res) => {
     if (err) throw err;
     console.table(res);
     runDatabase();
@@ -62,7 +63,7 @@ const departmentData = () => {
 
 // view all role data
 const roleData = () => {
-  const sql = `SELECT * FROM roles JOIN department_id ON roles.department_id = department.names`;
+  const sql = `SELECT * FROM roles LEFT JOIN department_id ON roles.department_id = department.names`;
   
   db.query(sql, (err, res) => {
     if (err) throw err;
@@ -73,7 +74,7 @@ const roleData = () => {
 
 // view all employee data
 const employeeData = () => {
-  const sql = `SELECT * FROM employee JOIN role_id ON employee.role_id = title JOIN department_id ON employee.department_id`;
+  const sql = `SELECT * FROM employee LEFT JOIN role_id ON employee.role_id = title LEFT JOIN department_id ON employee.department_id`;
   
   db.query(sql, (err, res) => {
     if (err) throw err;
