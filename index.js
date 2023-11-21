@@ -63,7 +63,7 @@ const departmentData = () => {
 
 // view all role data
 const roleData = () => {
-  const sql = `SELECT * FROM roles LEFT JOIN department_id ON roles.department_id = department.names`;
+  const sql = `SELECT * FROM roles`;
   
   db.query(sql, (err, res) => {
     if (err) throw err;
@@ -74,7 +74,7 @@ const roleData = () => {
 
 // view all employee data
 const employeeData = () => {
-  const sql = `SELECT * FROM employee LEFT JOIN role_id ON employee.role_id = title LEFT JOIN department_id ON employee.department_id`;
+  const sql = `SELECT * FROM employees`;
   
   db.query(sql, (err, res) => {
     if (err) throw err;
@@ -114,6 +114,7 @@ const addDepartment = () => {
   });
 };
 
+// **********edit************
 // add role to the company_db database
 const addRole = () => {
   db.query('SELECT * FROM department', (err, res) => {
@@ -158,8 +159,13 @@ const addRole = () => {
         }
       }
     ]).then((answer) => {
+      for (let i = 0; i < res.length; i++) {
+        if (res[i].name === answer.department) {
+          var depName = res[i];
+        }
+      }
       const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`;
-      const params = [answer.newRole, answer.salary, answer.department];
+      const params = [answer.newRole, answer.salary, depName.id];
       
       db.query(sql, params, (err) => {
         if (err) throw err;
@@ -170,6 +176,7 @@ const addRole = () => {
   });
 };
 
+// **********edit************
 // add employee to the company_db
 const addEmployee = () => {
   db.query('SELECT * FROM employees, roles', (err, res) => {
@@ -245,6 +252,7 @@ const addEmployee = () => {
 
 // --- Update Employee Database ---
 
+// **********edit************
 // update an employee's role in the compnay_db
 const updateEmployee = () => {
   db.query('SELECT * FROM employees, roles', (err, res) => {
@@ -255,27 +263,27 @@ const updateEmployee = () => {
         type: 'input',
         message: 'What employee do you want to update?',
         name: 'employee',
-        validate: () => {
-          let arr = [];
-          for(let i = 0; i < res.length; i++) {
-            arr.push(res[i].last_name);
-          };
-          let employeeArr = [...new Set(arr)];
-          return employeeArr;
-        },
+        // validate: () => {
+        //   let arr = [];
+        //   for(let i = 0; i < res.length; i++) {
+        //     arr.push(res[i].last_name);
+        //   };
+        //   let employeeArr = [...new Set(arr)];
+        //   return employeeArr;
+        // },
       },
       {
         type: 'input',
         message: 'What is their new role?',
         name: 'role',
-        validate: () => {
-          let arr = [];
-          for(let i = 0; i < res.length; i++) {
-            arr.push(res[i].title);
-          };
-          let roleArr = [...new Set(arr)];
-          return roleArr;
-        }
+        // validate: () => {
+        //   let arr = [];
+        //   for(let i = 0; i < res.length; i++) {
+        //     arr.push(res[i].title);
+        //   };
+        //   let roleArr = [...new Set(arr)];
+        //   return roleArr;
+        // }
       },
     ]).then((answer) => {
 
